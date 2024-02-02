@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+//import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const TaskList = () => {
   const [task, setTask] = useState("");
@@ -36,7 +38,7 @@ const TaskList = () => {
       setIsEditing(false);
       setAlert({ show: true, msg: "Valor cambiado", type: "success" });
     } else {
-      const newTask = { id: new Date().getTime().toString(), label: task };
+      const newTask = { label: task, done: false };
       const newTaskList = [...taskList, newTask];
       setTaskList(newTaskList);
       updateTasks(newTaskList);
