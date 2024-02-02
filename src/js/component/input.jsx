@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const TaskList = () => {
   const [task, setTask] = useState("");
@@ -6,6 +6,13 @@ const TaskList = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editID, setEditID] = useState(null);
   const [alert, setAlert] = useState({ show: false, msg: "", type: "" });
+
+  useEffect(() => {
+    fetch("https://playground.4geeks.com/apis/fake/todos/user/heysonb")
+      .then((resp) => resp.json())
+      .then((data) => setTaskList(data))
+      .catch((error) => console.log(error));
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,21 +23,23 @@ const TaskList = () => {
         type: "danger",
       });
     } else if (task && isEditing) {
-      setTaskList(
-        taskList.map((item) => {
-          if (item.id === editID) {
-            return { ...item, task };
-          }
-          return item;
-        })
-      );
+      const newTaskList = taskList.map((item) => {
+        if (item.id === editID) {
+          return { ...item, label: task };
+        }
+        return item;
+      });
+      setTaskList(newTaskList);
+      updateTasks(newTaskList);
       setTask("");
       setEditID(null);
       setIsEditing(false);
       setAlert({ show: true, msg: "Valor cambiado", type: "success" });
     } else {
-      const newTask = { id: new Date().getTime().toString(), task };
-      setTaskList([...taskList, newTask]);
+      const newTask = { id: new Date().getTime().toString(), label: task };
+      const newTaskList = [...taskList, newTask];
+      setTaskList(newTaskList);
+      updateTasks(newTaskList);
       setTask("");
       setAlert({
         show: true,
@@ -38,6 +47,40 @@ const TaskList = () => {
         type: "success",
       });
     }
+  };
+
+  const deleteTask = (id) => {
+    const newTaskList = taskList.filter((task) => task.id !== id);
+    setTaskList(newTaskList);
+    updateTasks(newTaskList);
+    setAlert({
+      show: true,
+      msg: "Tarea eliminada",
+      type: "danger",
+    });
+  };
+
+  const clearTasks = () => {
+    setTaskList([]);
+    updateTasks([]);
+    setAlert({
+      show: true,
+      msg: "Todas tareas eliminadas",
+      type: "danger",
+    });
+  };
+
+  const updateTasks = (tasks) => {
+    fetch("https://playground.4geeks.com/apis/fake/todos/user/heysonb", {
+      method: "PUT",
+      body: JSON.stringify(tasks),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => resp.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.log(error));
   };
 
   return (
@@ -71,12 +114,12 @@ const TaskList = () => {
                 key={item.id}
                 className="list-group-item d-flex justify-content-center align-items-center"
               >
-                {item.task}
+                {item.label}
                 <div>
                   <button
                     className="btn btn-outline-success mr-2 hide-button"
                     onClick={() => {
-                      setTask(item.task);
+                      setTask(item.label);
                       setEditID(item.id);
                       setIsEditing(true);
                     }}
@@ -85,16 +128,7 @@ const TaskList = () => {
                   </button>
                   <button
                     className="btn btn-outline-danger hide-button"
-                    onClick={() => {
-                      setTaskList(
-                        taskList.filter((task) => task.id !== item.id)
-                      );
-                      setAlert({
-                        show: true,
-                        msg: "Tarea eliminada",
-                        type: "danger",
-                      });
-                    }}
+                    onClick={() => deleteTask(item.id)}
                   >
                     Eliminar
                   </button>
@@ -102,6 +136,9 @@ const TaskList = () => {
               </li>
             ))}
           </ul>
+          <button className="btn btn-outline-danger" onClick={clearTasks}>
+            Limpiar todas las tareas
+          </button>
         </div>
         <div className="card-footer text-muted">
           {taskList.length > 0
