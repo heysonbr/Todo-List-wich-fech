@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-//import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDeleteLeft, faPencil } from "@fortawesome/free-solid-svg-icons";
 
 const TaskList = () => {
   const [task, setTask] = useState("");
@@ -114,10 +114,10 @@ const TaskList = () => {
             {taskList.map((item) => (
               <li
                 key={item.id}
-                className="list-group-item d-flex justify-content-center align-items-center"
+                className="list-group-item d-flex justify-content-center align-items-center "
               >
                 {item.label}
-                <div>
+                <div className="ps-3">
                   <button
                     className="btn btn-outline-success mr-2 hide-button"
                     onClick={() => {
@@ -126,13 +126,19 @@ const TaskList = () => {
                       setIsEditing(true);
                     }}
                   >
-                    Editar
+                    <FontAwesomeIcon
+                      icon={faPencil}
+                      style={{ color: "#63E6BE" }}
+                    />
                   </button>
                   <button
-                    className="btn btn-outline-danger hide-button"
+                    className="btn btn-outline-danger hide-button ms-2"
                     onClick={() => deleteTask(item.id)}
                   >
-                    Eliminar
+                    <FontAwesomeIcon
+                      icon={faDeleteLeft}
+                      style={{ color: "#ff0000" }}
+                    />
                   </button>
                 </div>
               </li>
