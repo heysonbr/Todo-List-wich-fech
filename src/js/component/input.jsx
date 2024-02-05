@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDeleteLeft, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { v4 as uuidv4 } from "uuid";
 
 const TaskList = () => {
   const [task, setTask] = useState("");
@@ -38,7 +39,7 @@ const TaskList = () => {
       setIsEditing(false);
       setAlert({ show: true, msg: "Valor cambiado", type: "success" });
     } else {
-      const newTask = { label: task, done: false };
+      const newTask = { id: uuidv4(), label: task, done: false };
       const newTaskList = [...taskList, newTask];
       setTaskList(newTaskList);
       updateTasks(newTaskList);
@@ -51,25 +52,25 @@ const TaskList = () => {
     }
   };
 
-  const deleteTask = (id) => {
-    const newTaskList = taskList.filter((task) => task.id !== id);
-    setTaskList(newTaskList);
-    updateTasks(newTaskList);
-    setAlert({
-      show: true,
-      msg: "Tarea eliminada",
-      type: "danger",
-    });
-  };
-
   const clearTasks = () => {
-    setTaskList([]);
-    updateTasks([]);
-    setAlert({
-      show: true,
-      msg: "Todas tareas eliminadas",
-      type: "danger",
-    });
+    const tempTask = { id: "temp", label: "Example Task!", done: false };
+    fetch("https://playground.4geeks.com/apis/fake/todos/user/heysonb", {
+      method: "PUT",
+      body: JSON.stringify([tempTask]),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => resp.json())
+      .then((data) => {
+        setTaskList([]);
+        setAlert({
+          show: true,
+          msg: "Todas tareas eliminadas",
+          type: "danger",
+        });
+      })
+      .catch((error) => console.log(error));
   };
 
   const updateTasks = (tasks) => {
@@ -81,10 +82,22 @@ const TaskList = () => {
       },
     })
       .then((resp) => resp.json())
-      .then((data) => console.log(data))
+      .then((data) => {
+        console.log(data);
+      })
       .catch((error) => console.log(error));
   };
 
+  const deleteTask = (id) => {
+    const newTaskList = taskList.filter((task) => task.id !== id);
+    setTaskList(newTaskList);
+    updateTasks(newTaskList);
+    setAlert({
+      show: true,
+      msg: "Tarea eliminada",
+      type: "danger",
+    });
+  };
   return (
     <div className="container mt-5">
       {alert.show && (
