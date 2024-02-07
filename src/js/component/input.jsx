@@ -9,7 +9,7 @@ const TaskList = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editID, setEditID] = useState(null);
   const [alert, setAlert] = useState({ show: false, msg: "", type: "" });
-  const nickname = "heysondasdasdaaaadddad";
+  const nickname = "heysonb";
   useEffect(() => {
     const options = {
       method: "GET",
