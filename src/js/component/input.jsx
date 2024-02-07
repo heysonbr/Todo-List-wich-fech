@@ -9,13 +9,72 @@ const TaskList = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editID, setEditID] = useState(null);
   const [alert, setAlert] = useState({ show: false, msg: "", type: "" });
-
+  const nickname = "heysondasdasdaaaadddad";
   useEffect(() => {
-    fetch("https://playground.4geeks.com/apis/fake/todos/user/heysonb")
-      .then((resp) => resp.json())
-      .then((data) => setTaskList(data))
-      .catch((error) => console.log(error));
-  }, []);
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "insomnia/8.3.0",
+      },
+    };
+    fetch(
+      `https://playground.4geeks.com/apis/fake/todos/user/${nickname}`,
+      options
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setTaskList(data);
+      })
+      .catch((err) => {
+        if (err.message.includes("NOT FOUND")) {
+          const postOptions = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "User-Agent": "insomnia/8.3.0",
+            },
+            body: JSON.stringify([]), // Enviar una lista de tareas vacía
+          };
+          fetch(
+            `https://playground.4geeks.com/apis/fake/todos/user/${nickname}`,
+            postOptions
+          )
+            .then((response) => {
+              if (!response.ok) {
+                throw Error(response.statusText);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              // Intenta obtener la lista de tareas del usuario nuevamente
+              fetch(
+                `https://playground.4geeks.com/apis/fake/todos/user/${nickname}`,
+                options
+              )
+                .then((response) => {
+                  if (!response.ok) {
+                    throw Error(response.statusText);
+                  }
+                  return response.json();
+                })
+                .then((data) => {
+                  // Actualiza el estado con la lista de tareas obtenida
+                  setTaskList(data);
+                })
+                .catch((err) => console.error(err));
+            })
+            .catch((err) => console.error(err));
+        } else {
+          console.error(err);
+        }
+      });
+  }, []); // Se ejecuta solo una vez cuando el componente se monta
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -54,7 +113,7 @@ const TaskList = () => {
 
   const clearTasks = () => {
     const tempTask = { id: "temp", label: "Example Task!", done: false };
-    fetch("https://playground.4geeks.com/apis/fake/todos/user/heysonb", {
+    fetch(`https://playground.4geeks.com/apis/fake/todos/user/${nickname}`, {
       method: "PUT",
       body: JSON.stringify([tempTask]),
       headers: {
@@ -74,7 +133,7 @@ const TaskList = () => {
   };
 
   const updateTasks = (tasks) => {
-    fetch("https://playground.4geeks.com/apis/fake/todos/user/heysonb", {
+    fetch(`https://playground.4geeks.com/apis/fake/todos/user/${nickname}`, {
       method: "PUT",
       body: JSON.stringify(tasks),
       headers: {
