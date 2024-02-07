@@ -150,7 +150,12 @@ const TaskList = () => {
   const deleteTask = (id) => {
     const newTaskList = taskList.filter((task) => task.id !== id);
     setTaskList(newTaskList);
-    updateTasks(newTaskList);
+    if (newTaskList.length === 0) {
+      // Si la nueva lista de tareas está vacía, agrega una tarea falsa
+      updateTasks([{ id: "temp", label: "Example Task!", done: false }]);
+    } else {
+      updateTasks(newTaskList);
+    }
     setAlert({
       show: true,
       msg: "Tarea eliminada",
